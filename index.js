@@ -27,6 +27,20 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// DB Connection
+const db = require('./src/model');
+const { log } = require('console');
+(async () => {
+  await db.sequelize.authenticate();
+  console.log('Database connected...');
+
+  // Sync models (use with caution in production)
+  await db.sequelize.sync({ alter: true });
+  console.log('Table synced..');
+  
+})();
+
+
 // Static uploads
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -45,17 +59,18 @@ app.use('/api', limiter);
 /**
  * API Routes
  */
-app.use('/api/products',            require('./src/routes/products'));
-app.use('/api/employees',           require('./src/routes/employees'));
-app.use('/api/vendors',             require('./src/routes/vendors'));
-app.use('/api/consultants',         require('./src/routes/consultants'));
-app.use('/api/land',                require('./src/routes/land'));
-app.use('/api/ngos',                require('./src/routes/ngos'));
-app.use('/api/business-associates', require('./src/routes/businessAssociates'));
-app.use('/api/volunteers',          require('./src/routes/volunteers'));
-app.use('/api/hospitality',         require('./src/routes/hospitality'));
-app.use('/api/nursery-vendors',     require('./src/routes/nurseryVendors'));
-app.use('/api/tree-species',        require('./src/routes/treeSpecies'));
+app.use('/api/business-associates', require('./src/routes/businessAssociate.routes'));
+app.use('/api/consultants',         require('./src/routes/technicalConsultant.routes'));
+app.use('/api/employees',           require('./src/routes/employee.routes'));
+app.use('/api/hospitality',         require('./src/routes/hospitalityVertical.routes'));
+app.use('/api/land',                require('./src/routes/landResource.routes'));
+app.use('/api/ngos',                require('./src/routes/ngo.routes'));
+app.use('/api/nursery-vendors',     require('./src/routes/nurseryVendor.routes'));
+app.use('/api/vendors',             require('./src/routes/vendor.routes'));
+app.use('/api/volunteers',          require('./src/routes/volunteer.routes'));
+app.use('/api/products',            require('./src/routes/product.routes'));
+app.use('/api/tree-species',        require('./src/routes/treeSpecies.routes'));
+
 app.use('/api/projects',            require('./src/routes/projects'));
 app.use('/api/dashboard',           require('./src/routes/dashboard'));
 

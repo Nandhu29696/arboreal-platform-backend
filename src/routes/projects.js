@@ -18,15 +18,15 @@ router.get('/', async (req, res) => {
     const offset = (parseInt(page) - 1) * parseInt(limit);
     const conds = [], vals = [];
 
-    if (project_type)       { vals.push(project_type);       conds.push(`project_type = $${vals.length}`); }
-    if (status)             { vals.push(status);             conds.push(`status = $${vals.length}`); }
-    if (organization_name)  { vals.push(`%${organization_name}%`); conds.push(`organization_name ILIKE $${vals.length}`); }
+    if (project_type) { vals.push(project_type); conds.push(`project_type = $${vals.length}`); }
+    if (status) { vals.push(status); conds.push(`status = $${vals.length}`); }
+    if (organization_name) { vals.push(`%${organization_name}%`); conds.push(`organization_name ILIKE $${vals.length}`); }
 
     const where = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
     const countR = await query(`SELECT COUNT(*) FROM projects ${where}`, vals);
     vals.push(parseInt(limit), offset);
     const dataR = await query(
-      `SELECT * FROM projects ${where} ORDER BY created_at DESC LIMIT $${vals.length-1} OFFSET $${vals.length}`,
+      `SELECT * FROM projects ${where} ORDER BY created_at DESC LIMIT $${vals.length - 1} OFFSET $${vals.length}`,
       vals
     );
     res.json({ data: dataR.rows, total: parseInt(countR.rows[0].count), page: parseInt(page), limit: parseInt(limit) });
@@ -48,8 +48,8 @@ router.post('/', async (req, res) => {
          industrial_vertical, created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
       [project_name, project_type, organization_name, address_details,
-       poc_name, contact_number, status || 'Draft', estimated_completion,
-       industrial_vertical, created_by || null]
+        poc_name, contact_number, status || 'Draft', estimated_completion,
+        industrial_vertical, created_by || null]
     );
     res.status(201).json(r.rows[0]);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -94,13 +94,13 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const allowed = ['project_name','organization_name','address_details','poc_name',
-                     'contact_number','status','estimated_completion','industrial_vertical'];
+    const allowed = ['project_name', 'organization_name', 'address_details', 'poc_name',
+      'contact_number', 'status', 'estimated_completion', 'industrial_vertical'];
     const keys = Object.keys(req.body).filter(k => allowed.includes(k));
     if (!keys.length) return res.status(400).json({ error: 'No valid fields' });
-    const sets = keys.map((k, i) => `${k}=$${i+1}`).join(', ');
+    const sets = keys.map((k, i) => `${k}=$${i + 1}`).join(', ');
     const r = await query(
-      `UPDATE projects SET ${sets} WHERE id=$${keys.length+1} RETURNING *`,
+      `UPDATE projects SET ${sets} WHERE id=$${keys.length + 1} RETURNING *`,
       [...keys.map(k => req.body[k]), req.params.id]
     );
     if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
@@ -143,9 +143,9 @@ router.post('/:id/transplantation', async (req, res) => {
          post_survey_details, transplantation_vendor_id, transport_vendor_id, water_supplier_id)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
       [req.params.id, current_location, transplantation_location, distance_km,
-       species_name, girth_cm, qty || 0, survival_rate,
-       pre_survey_details, post_survey_details,
-       transplantation_vendor_id || null, transport_vendor_id || null, water_supplier_id || null]
+        species_name, girth_cm, qty || 0, survival_rate,
+        pre_survey_details, post_survey_details,
+      transplantation_vendor_id || null, transport_vendor_id || null, water_supplier_id || null]
     );
     res.status(201).json(r.rows[0]);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -166,8 +166,8 @@ router.post('/:id/plantation', async (req, res) => {
          plantation_vendor_id, transport_vendor_id, water_supplier_id)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
       [req.params.id, plantation_location, species_name, girth_cm, qty || 0,
-       fencing_required || false, survival_rate, post_survey_details,
-       plantation_vendor_id || null, transport_vendor_id || null, water_supplier_id || null]
+      fencing_required || false, survival_rate, post_survey_details,
+      plantation_vendor_id || null, transport_vendor_id || null, water_supplier_id || null]
     );
     res.status(201).json(r.rows[0]);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -188,8 +188,8 @@ router.post('/:id/maintenance', async (req, res) => {
          maintenance_period_months, components_of_maintenance)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
       [req.params.id, current_location, transplantation_plantation_location,
-       species_name, girth_cm, qty || 0, post_survey_details,
-       maintenance_period_months, components_of_maintenance || []]
+        species_name, girth_cm, qty || 0, post_survey_details,
+        maintenance_period_months, components_of_maintenance || []]
     );
     res.status(201).json(r.rows[0]);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -227,7 +227,7 @@ router.post('/:id/files', upload.single('file'), async (req, res) => {
       `INSERT INTO file_uploads (entity_type, entity_id, file_name, file_path, file_type)
        VALUES ($1,$2,$3,$4,$5) RETURNING *`,
       ['project', req.params.id, req.file.originalname,
-       `/uploads/${req.file.filename}`, req.file.mimetype]
+        `/uploads/${req.file.filename}`, req.file.mimetype]
     );
     res.status(201).json(r.rows[0]);
   } catch (e) { res.status(500).json({ error: e.message }); }
