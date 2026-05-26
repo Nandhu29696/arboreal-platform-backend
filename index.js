@@ -70,9 +70,15 @@ app.use('/api/vendors',             require('./src/routes/vendor.routes'));
 app.use('/api/volunteers',          require('./src/routes/volunteer.routes'));
 app.use('/api/products',            require('./src/routes/product.routes'));
 app.use('/api/tree-species',        require('./src/routes/treeSpecies.routes'));
-
-app.use('/api/projects',            require('./src/routes/projects'));
-app.use('/api/dashboard',           require('./src/routes/dashboard'));
+app.use('/api/projects',            require('./src/routes/project.routes'));
+app.use('/api/dashboard',           require('./src/routes/dashboard.routes'));
+ 
+app.use(
+  '/uploads',
+  express.static(
+    path.join(process.cwd(), 'uploads')
+  )
+);
 
 /**
  * Health Check

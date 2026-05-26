@@ -40,7 +40,99 @@ db.NurseryVendor = require('./nurseryVendor.model')(sequelize, DataTypes);
 db.Vendor = require('./vendor.model')(sequelize, DataTypes);
 db.Volunteer = require('./volunteer.model')(sequelize, DataTypes);
 db.Product = require('./product.model')(sequelize, DataTypes);
+// MODELS
+db.Project =
+  require('./project.model')(sequelize, DataTypes);
 
+db.TreeCensus =
+  require('./treeCensus.model')(sequelize, DataTypes);
+
+db.TreePlantation =
+  require('./treePlantation.model')(sequelize, DataTypes);
+
+db.TreeTransplantation =
+  require('./treeTransplantation.model')(sequelize, DataTypes);
+
+db.Maintenance =
+  require('./maintenance.model')(sequelize, DataTypes);
+
+db.DailyUpdate =
+  require('./dailyUpdate.model')(sequelize, DataTypes);
+
+db.FileUpload =
+  require('./fileUpload.model')(sequelize, DataTypes);
+
+db.ProjectVolunteer =
+  require('./projectVolunteer.model')(sequelize, DataTypes);
+
+db.Volunteer =
+  require('./volunteer.model')(sequelize, DataTypes);
+
+// ASSOCIATIONS
+
+// PROJECT → CENSUS
+db.Project.hasOne(db.TreeCensus, {
+  foreignKey: 'project_id'
+});
+
+db.TreeCensus.belongsTo(db.Project, {
+  foreignKey: 'project_id'
+});
+
+// PROJECT → TRANSPLANTATION
+db.Project.hasOne(db.TreeTransplantation, {
+  foreignKey: 'project_id'
+});
+
+db.TreeTransplantation.belongsTo(db.Project, {
+  foreignKey: 'project_id'
+});
+
+// PROJECT → PLANTATION
+db.Project.hasOne(db.TreePlantation, {
+  foreignKey: 'project_id'
+});
+
+db.TreePlantation.belongsTo(db.Project, {
+  foreignKey: 'project_id'
+});
+
+// PROJECT → MAINTENANCE
+db.Project.hasOne(db.Maintenance, {
+  foreignKey: 'project_id'
+});
+
+db.Maintenance.belongsTo(db.Project, {
+  foreignKey: 'project_id'
+});
+
+// PROJECT → DAILY UPDATES
+db.Project.hasMany(db.DailyUpdate, {
+  foreignKey: 'project_id'
+});
+
+db.DailyUpdate.belongsTo(db.Project, {
+  foreignKey: 'project_id'
+});
+
+// PROJECT ↔ VOLUNTEERS
+db.Project.belongsToMany(
+  db.Volunteer,
+  {
+    through: db.ProjectVolunteer,
+    foreignKey: 'project_id',
+    otherKey: 'volunteer_id'
+  }
+);
+
+db.Volunteer.belongsToMany(
+  db.Project,
+  {
+    through: db.ProjectVolunteer,
+    foreignKey: 'volunteer_id',
+    otherKey: 'project_id'
+  }
+);
 // SEQUELIZE
 db.sequelize = sequelize;
 
