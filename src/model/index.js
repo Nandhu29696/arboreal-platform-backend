@@ -108,11 +108,13 @@ db.Maintenance.belongsTo(db.Project, {
 
 // PROJECT → DAILY UPDATES
 db.Project.hasMany(db.DailyUpdate, {
-  foreignKey: 'project_id'
+  foreignKey: 'project_id',
+  as: 'recent_updates'
 });
 
 db.DailyUpdate.belongsTo(db.Project, {
-  foreignKey: 'project_id'
+  foreignKey: 'project_id',
+  as: 'project'
 });
 
 // PROJECT ↔ VOLUNTEERS
@@ -121,7 +123,8 @@ db.Project.belongsToMany(
   {
     through: db.ProjectVolunteer,
     foreignKey: 'project_id',
-    otherKey: 'volunteer_id'
+    otherKey: 'volunteer_id',
+    as: 'volunteers'
   }
 );
 
@@ -130,9 +133,25 @@ db.Volunteer.belongsToMany(
   {
     through: db.ProjectVolunteer,
     foreignKey: 'volunteer_id',
-    otherKey: 'project_id'
+    otherKey: 'project_id',
+    as: 'projects'
   }
 );
+
+db.Project.hasMany(db.FileUpload, {
+  foreignKey: 'entity_id',
+  as: 'files',
+  scope: {
+    entity_type: 'project'
+  }
+});
+
+db.FileUpload.belongsTo(db.Project, {
+  foreignKey: 'entity_id',
+  as: 'project'
+});
+
+
 // SEQUELIZE
 db.sequelize = sequelize;
 

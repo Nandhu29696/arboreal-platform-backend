@@ -17,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       specifications: {
-        type: DataTypes.TEXT
+        type: DataTypes.JSON,
+        allowNull: true
       },
 
       is_active: {

@@ -78,48 +78,161 @@ exports.getAll = async (req, res) => {
 // ─────────────────────────────────────────────
 exports.getOne = async (req, res) => {
 
-    try {
+  try {
 
-        const project =
-            await Project.findByPk(
-                req.params.id,
-                {
-                    include: [
-                        TreeCensus,
-                        TreePlantation,
-                        TreeTransplantation,
-                        Maintenance,
-                        {
-                            model: DailyUpdate,
-                            limit: 10
-                        },
-                        {
-                            model: Volunteer,
-                            through: {
-                                attributes: ['role']
-                            }
-                        }
-                    ]
-                }
-            );
+    const project =
+      await Project.findByPk(req.params.id, {
 
-        if (!project) {
+        include: [
 
-            return res.status(404).json({
-                error: 'Project not found'
-            });
+          // Volunteers
+          {
+            model: Volunteer,
+            as: 'volunteers',
 
-        }
+            through: {
+              attributes: ['role']
+            }
+          },
 
-        res.json(project);
+          // Recent Updates
+          {
+            model: DailyUpdate,
+            as: 'recent_updates',
 
-    } catch (error) {
+            limit: 10,
 
-        res.status(500).json({
-            error: error.message
+            separate: true,
+
+            order: [['update_date', 'DESC']]
+          },
+
+          // Files
+          {
+            model: FileUpload,
+            as: 'files'
+          }
+
+        ]
+
+      });
+
+    if (!project) {
+
+      return res.status(404).json({
+        error: 'Project not found'
+      });
+
+    }
+
+    let detail = {};
+
+    // ─────────────────────────────────────
+    // Dynamic Detail Table
+    // ─────────────────────────────────────
+
+    if (project.project_type === 'census') {
+
+      detail =
+        await TreeCensus.findOne({
+
+          where: {
+            project_id: project.id
+          }
+
         });
 
     }
+
+    else if (project.project_type === 'plantation') {
+
+      detail =
+        await TreePlantation.findOne({
+
+          where: {
+            project_id: project.id
+          }
+
+        });
+
+    }
+
+    else if (project.project_type === 'transplantation') {
+
+      detail =
+        await TreeTransplantation.findOne({
+
+          where: {
+            project_id: project.id
+          }
+
+        });
+
+    }
+
+    else if (project.project_type === 'maintenance') {
+
+      detail =
+        await Maintenance.findOne({
+
+          where: {
+            project_id: project.id
+          }
+
+        });
+
+    }
+
+    // ─────────────────────────────────────
+    // Volunteer Formatting
+    // ─────────────────────────────────────
+
+    const volunteers =
+      project.volunteers.map(v => ({
+
+        id: v.id,
+
+        name: v.name,
+
+        mobile_number: v.mobile_number,
+
+        specialization: v.specialization,
+
+        role: v.ProjectVolunteer?.role
+
+      }));
+
+    // ─────────────────────────────────────
+    // Final Response
+    // ─────────────────────────────────────
+
+    res.json({
+
+      ...project.toJSON(),
+
+      detail,
+
+      volunteers,
+
+      summary: {
+
+        volunteers_count:
+          volunteers.length,
+
+        updates_count:
+          project.recent_updates?.length || 0
+
+      }
+
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
 
 };
 
