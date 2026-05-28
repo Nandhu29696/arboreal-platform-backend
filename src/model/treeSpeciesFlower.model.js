@@ -1,13 +1,17 @@
+// src/model/treeSpeciesFlower.model.js
+
 module.exports = (sequelize, DataTypes) => {
 
-  const TreeSpeciesFruit = sequelize.define(
-    'TreeSpeciesFruit',
+  const TreeSpeciesFlower = sequelize.define(
+    'TreeSpeciesFlower',
     {
-      category: {
-        type: DataTypes.STRING
+
+      flower_name: {
+        type: DataTypes.STRING,
+        allowNull: false
       },
 
-      fruit_name: {
+      category: {
         type: DataTypes.STRING
       },
 
@@ -15,16 +19,19 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       },
 
-      environment: {
-        type: DataTypes.STRING
+      qty_available: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
       },
 
-      soil_type: {
-        type: DataTypes.STRING
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
       }
+
     },
     {
-      tableName: 'tree_species_fruits',
+      tableName: 'tree_species_flowers',
 
       timestamps: true,
 
@@ -34,5 +41,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  return TreeSpeciesFruit;
+  return TreeSpeciesFlower;
+
 };
